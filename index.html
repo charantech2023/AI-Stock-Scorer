@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WPS.AI | Stock Scorer</title>
+<title>WPS.AI | Institutional Stock Scorer</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -72,6 +72,7 @@ h1,h2,h3{font-family:var(--sans); margin:0}
   border-radius:18px;
   box-shadow:var(--shadow);
   padding:16px;
+  margin-bottom:14px;
 }
 .stack{display:flex; flex-direction:column; gap:14px}
 .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
@@ -129,8 +130,6 @@ h1,h2,h3{font-family:var(--sans); margin:0}
 .col-4{grid-column:span 4}
 @media (max-width:900px){
   .col-8,.col-7,.col-6,.col-5,.col-4{grid-column:span 12}
-  .nav{gap:12px; flex-wrap:wrap}
-  .nav-tabs{justify-content:flex-start}
 }
 .hr{height:1px; background:var(--border); margin:10px 0}
 .kpi{
@@ -175,26 +174,13 @@ h1,h2,h3{font-family:var(--sans); margin:0}
   font-size:11px;
   color:var(--ink2);
 }
-.source:hover{border-color:rgba(180,83,9,.35)}
-.small{font-size:10px; color:var(--ink3)}
 .loading{
   display:none;
   text-align:center;
   padding:34px 10px;
   font-weight:900;
   color:var(--gold);
-  letter-spacing:1px;
 }
-.error{
-  border:1px solid rgba(185,28,28,.25);
-  background:rgba(185,28,28,.06);
-  border-radius:18px;
-  padding:14px;
-  color:#7f1d1d;
-  line-height:1.45;
-}
-.error .title{font-weight:900; color:var(--danger); margin-bottom:6px}
-.mono{font-family:var(--mono)}
 </style>
 </head>
 
@@ -203,99 +189,58 @@ h1,h2,h3{font-family:var(--sans); margin:0}
   <div class="nav-brand">WPS<span>.</span>AI</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('scorer', this)">SCORER</button>
-    <button class="nav-tab" onclick="showPage('compare', this)">COMPARE</button>
-    <button class="nav-tab" onclick="showPage('checklist', this)">CHECKLIST</button>
-    <button class="nav-tab" onclick="showPage('journal', this)">JOURNAL</button>
-    <button class="nav-tab" onclick="showPage('watchlist', this)">WATCHLIST</button>
+    <button class="nav-tab" onclick="showPage('checklist', this)">EXIT PROTOCOL</button>
   </div>
 </nav>
 
 <div class="main">
   <div class="page active" id="page-scorer">
     <div style="margin-bottom:18px;">
-      <h1 style="font-size:32px;">AI Stock Scorer</h1>
-      <div class="subhead">Institutional-style 7-Pillar snapshot. Uses the most recent web-available data and shows sources.</div>
+      <h1 style="font-size:32px;">Institutional Stock Scorer</h1>
+      <div class="subhead">Strategy: 6-Pillar Weighted Probability Score (WPS).</div>
     </div>
 
     <div class="card stack">
-      <div class="row">
-        <div class="badge" title="Client-side API keys are risky. A backend proxy is recommended.">
-          <span class="dot"></span>
-          <span><b>Note:</b> Direct API-key mode is convenient and unsafe.</span>
-        </div>
-      </div>
-
       <div class="grid">
         <div class="col-12">
-          <div class="row" style="margin-bottom:8px;">
-            <div class="label">API KEY</div>
-            <div class="small">Stored locally (optional). Best practice: use a server proxy.</div>
-          </div>
-          <div class="row">
-            <input type="password" class="input" id="geminiKey" placeholder="AIza..." autocomplete="off" />
-            <label class="badge" style="cursor:pointer;">
-              <input type="checkbox" id="rememberKey" style="margin:0;" />
-              <span>Remember on this device</span>
-            </label>
-          </div>
+          <div class="row" style="margin-bottom:8px;"><div class="label">API KEY</div></div>
+          <input type="password" class="input" id="geminiKey" placeholder="Gemini API Key..." />
         </div>
-
         <div class="col-12">
-          <div class="row" style="margin-bottom:8px;">
-            <div class="label">STOCK SYMBOL</div>
-            <div class="small">Example: JINDALSAW (NSE). Case does not matter.</div>
-          </div>
+          <div class="row" style="margin-bottom:8px;"><div class="label">NSE SYMBOL</div></div>
           <div class="row">
-            <input class="input" id="stockInput" placeholder="e.g. JINDALSAW" />
-            <button class="btn" id="analyzeBtn">ANALYZE</button>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="note">
-            <b>Output discipline:</b> The model is required to return strict JSON with dates and per-metric citations. If it does not, the UI will tell you instead of crashing like a toddler.
+            <input class="input" id="stockInput" placeholder="e.g. LAURUSLABS" />
+            <button class="btn" id="analyzeBtn">RUN 6-PILLAR AUDIT</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="loading" class="loading">SEARCHING LIVE MARKET DATA...</div>
+    <div id="loading" class="loading">AUDITING DATA INTEGRITY & MARKET PILLARS...</div>
     <div id="resultsPanel" class="stack" style="margin-top:14px;"></div>
-  </div>
-
-  <div class="page" id="page-compare">
-    <div class="card">
-      <h2>Comparison</h2>
-      <div class="subhead">Placeholder. You can wire this to run two symbols and diff pillars.</div>
-    </div>
   </div>
 
   <div class="page" id="page-checklist">
     <div class="card">
-      <h2>Checklist</h2>
-      <div class="subhead">Placeholder. Great place for a pre-trade sanity list and risk rules.</div>
-    </div>
-  </div>
-
-  <div class="page" id="page-journal">
-    <div class="card">
-      <h2>Journal</h2>
-      <div class="subhead">Placeholder. Add entries, tag by thesis, and track post-mortems.</div>
-    </div>
-  </div>
-
-  <div class="page" id="page-watchlist">
-    <div class="card">
-      <h2>Watchlist</h2>
-      <div class="subhead">Placeholder. Store symbols in localStorage and rerun quickly.</div>
+      <h2 style="color:var(--danger)">III. Execution & Exit Protocol</h2>
+      <div class="subhead">Rules to protect capital once trade is active.</div>
+      <div class="hr"></div>
+      <div class="list" style="margin-top:10px;">
+        <div class="pillar-body"><b>1. Target 1 (T1):</b> Sell 50%. Move SL to Entry Price.</div>
+        <div class="pillar-body"><b>2. Target 2 (T2):</b> Sell 25% - 40%.</div>
+        <div class="pillar-body"><b>3. The "Runner":</b> Leave 10%-25% until 45° P&F trendline is broken.</div>
+        <div class="hr"></div>
+        <div class="pillar-name" style="color:var(--danger)">PANIC EXIT (Immediate)</div>
+        <div class="pillar-body">• Close below 20-day EMA or P&F Trendline.</div>
+        <div class="pillar-body">• Fundamental "Why" changes (e.g., USFDA rejection).</div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ---------------------------
-   Navigation
----------------------------- */
+const $ = (sel) => document.querySelector(sel);
+
 function showPage(id, btn){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -303,332 +248,111 @@ function showPage(id, btn){
   btn.classList.add('active');
 }
 
-/* ---------------------------
-   Small utilities
----------------------------- */
-const $ = (sel) => document.querySelector(sel);
-
-function setBusy(isBusy){
-  const btn = $('#analyzeBtn');
-  const sym = $('#stockInput');
-  const key = $('#geminiKey');
-  btn.disabled = isBusy;
-  sym.disabled = isBusy;
-  key.disabled = isBusy;
-  btn.textContent = isBusy ? 'ANALYZING...' : 'ANALYZE';
-  $('#loading').style.display = isBusy ? 'block' : 'none';
-}
-
-function escapeHtml(str){
-  return String(str ?? '')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
-
-function isSafeHttpUrl(url){
-  try{
-    const u = new URL(url);
-    return u.protocol === 'http:' || u.protocol === 'https:';
-  }catch(_){ return false; }
-}
-
-function normalizeSymbol(s){
-  return String(s || '').trim().toUpperCase().replace(/[^A-Z0-9._-]/g,'');
-}
-
-/* ---------------------------
-   Robust JSON parsing
----------------------------- */
-function stripCodeFences(text){
-  const t = String(text || '').trim();
-  return t.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();
-}
-
-function extractFirstJsonBlob(text){
-  const t = stripCodeFences(text);
-  if(t.startsWith('[')) return t;
-
-  const start = t.indexOf('{');
-  if(start === -1) return null;
-
-  let depth = 0;
-  for(let i = start; i < t.length; i++){
-    const ch = t[i];
-    if(ch === '{') depth++;
-    if(ch === '}') depth--;
-    if(depth === 0){
-      return t.slice(start, i+1);
-    }
-  }
-  return null;
-}
-
-function safeParseJson(text){
-  const direct = stripCodeFences(text);
-  try{ return JSON.parse(direct); }catch(_){}
-
-  const blob = extractFirstJsonBlob(text);
-  if(!blob) return null;
-  try{ return JSON.parse(blob); }catch(_){ return null; }
-}
-
-/* ---------------------------
-   Rendering
----------------------------- */
-function renderError(title, details){
-  $('#resultsPanel').innerHTML = `
-    <div class="error">
-      <div class="title">${escapeHtml(title)}</div>
-      <div class="mono" style="font-size:11px;">${escapeHtml(details || '')}</div>
-    </div>
-  `;
-}
-
-function renderResult(d, meta){
-  const symbol = escapeHtml(d.symbol || '');
-  const company = escapeHtml(d.company || '');
-  const cmp = (d.cmp != null) ? escapeHtml(String(d.cmp)) : '—';
-  const currency = escapeHtml(d.currency || '₹');
-  const wps = (d.wps != null) ? Math.round(Number(d.wps)) : null;
-  const verdict = escapeHtml(d.verdict || '—');
-  const summary = escapeHtml(d.summary || '');
-  const asOf = escapeHtml(d.as_of || d.asOf || '');
-
-  const pillars = Array.isArray(d.pillars) ? d.pillars : [];
-  const redFlags = Array.isArray(d.red_flags) ? d.red_flags : [];
-  const assumptions = Array.isArray(d.assumptions) ? d.assumptions : [];
-
-  const grounded = meta?.groundingChunks
-    ?.map(c => c?.web)
-    ?.filter(w => w?.uri && isSafeHttpUrl(w.uri))
-    ?.slice(0, 20) || [];
-
-  const modelSources = Array.isArray(d.sources)
-    ? d.sources.filter(s => s?.url && isSafeHttpUrl(s.url)).slice(0, 20)
-    : [];
-
-  const sources = grounded.length
-    ? grounded.map(w => ({ title: w.title || w.uri, url: w.uri }))
-    : modelSources;
-
-  const pillarCards = pillars.length ? pillars.map(p => {
-    const name = escapeHtml(p.name || 'Pillar');
-    const score = (p.score != null) ? escapeHtml(String(p.score)) : '—';
-    const body = escapeHtml(p.summary || p.note || '');
-    return `
-      <div class="pillar">
-        <div class="pillar-head">
-          <div class="pillar-name">${name}</div>
-          <div class="pillar-score">${score}%</div>
-        </div>
-        <div class="pillar-body">${body}</div>
-      </div>
-    `;
-  }).join('') : `
-    <div class="pillar" style="grid-column:span 12;">
-      <div class="pillar-head">
-        <div class="pillar-name">Pillars</div>
-        <div class="pillar-score">—</div>
-      </div>
-      <div class="pillar-body">No pillar breakdown returned. Your prompt or model response needs tightening.</div>
-    </div>
-  `;
-
-  const redFlagsHtml = redFlags.length ? `
-    <div class="card">
-      <div class="label" style="margin-bottom:8px;">RED FLAGS</div>
-      <div class="list">
-        ${redFlags.map(x => `<div class="source"><span class="mono">${escapeHtml(x)}</span></div>`).join('')}
-      </div>
-    </div>
-  ` : '';
-
-  const assumptionsHtml = assumptions.length ? `
-    <div class="card">
-      <div class="label" style="margin-bottom:8px;">ASSUMPTIONS</div>
-      <div class="list">
-        ${assumptions.map(x => `<div class="source"><span class="mono">${escapeHtml(x)}</span></div>`).join('')}
-      </div>
-    </div>
-  ` : '';
-
-  const sourcesHtml = sources.length ? sources.map(s => `
-      <a class="source" href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">
-        <div style="min-width:10px; height:10px; border-radius:99px; background:var(--gold)"></div>
-        <div>
-          <div style="font-weight:800; color:var(--ink)">${escapeHtml(s.title || s.url)}</div>
-          <div class="small">${escapeHtml(s.url)}</div>
-        </div>
-      </a>
-  `).join('') : `<div class="small">No sources returned. That usually means no grounding metadata or the model skipped citations.</div>`;
-
-  $('#resultsPanel').innerHTML = `
-    <div class="grid">
-      <div class="col-7">
-        <div class="card">
-          <div class="row" style="justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div class="label">SYMBOL</div>
-              <div style="font-family:var(--sans); font-weight:900; font-size:28px; margin-top:4px;">${symbol || '—'}</div>
-              <div class="subhead">${company}</div>
-            </div>
-            <div style="text-align:right;">
-              <div class="label">CMP</div>
-              <div style="font-family:var(--sans); font-weight:900; font-size:22px; margin-top:4px; color:var(--gold);">
-                ${currency}${cmp}
-              </div>
-              <div class="small">${asOf ? ('As of ' + asOf) : ''}</div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="summary">${summary || 'No summary returned.'}</div>
-        </div>
-      </div>
-
-      <div class="col-5">
-        <div class="kpi" style="height:100%;">
-          <div class="kpi-title">WPS SCORE</div>
-          <div class="kpi-score">${wps != null && !Number.isNaN(wps) ? wps : '—'}%</div>
-          <div class="kpi-verdict">${verdict}</div>
-        </div>
-      </div>
-
-      <div class="col-12">
-        <div class="grid">
-          ${pillarCards}
-        </div>
-      </div>
-
-      <div class="col-12">
-        <div class="card">
-          <div class="label" style="margin-bottom:8px;">SOURCES</div>
-          <div class="list">
-            ${sourcesHtml}
-          </div>
-        </div>
-      </div>
-    </div>
-    ${redFlagsHtml}
-    ${assumptionsHtml}
-  `;
-}
-
-/* ---------------------------
-   Gemini call (direct, client-side)
-   Best practice: move this to your backend and hide the key.
----------------------------- */
 async function analyzeStock(){
-  const symbol = normalizeSymbol($('#stockInput').value);
-  const apiKey = ($('#geminiKey').value || '').trim();
+  const symbol = $('#stockInput').value.trim().toUpperCase();
+  const apiKey = $('#geminiKey').value.trim();
+  if(!symbol || !apiKey) return alert("Missing symbol or API Key");
 
-  if(!symbol) return renderError('Missing symbol', 'Enter a stock symbol (example: JINDALSAW).');
-  if(!apiKey) return renderError('Missing API key', 'Paste a valid Gemini API key.');
-
-  const remember = $('#rememberKey').checked;
-  try{
-    if(remember) localStorage.setItem('wps_gemini_key', apiKey);
-    else localStorage.removeItem('wps_gemini_key');
-  }catch(_){}
-
-  setBusy(true);
+  $('#loading').style.display = 'block';
   $('#resultsPanel').innerHTML = '';
 
   const prompt = `
-You are a finance analyst. Produce a strict JSON response ONLY (no markdown, no commentary).
-Task: Analyze the NSE stock symbol "${symbol}" using a 7-pillar scoring method.
-
+Task: Analyze NSE stock "${symbol}" using the Institutional 6-Pillar Methodology.
 Rules:
-- Use the most recent publicly available data you can find via web search.
-- Every major claim should include an as-of date. Do not invent dates.
-- If data is not available, set the field to null and add a note in assumptions.
-- Keep the summary concise and audit-friendly.
+1. Relative Strength (15%): Compare against Nifty 50. Check if it remains flat on -1% market days.
+2. Technical Validation (25%): Above 45-degree P&F trendline? Vertical Count Targets?
+3. Sector Rotation (10%): Belong to leading sector? Any Budget/GST catalysts?
+4. Fundamentals (20%): YoY Profit >25%? Debt/Equity <0.5?
+5. Institutional/Insiders (15%): Bulk/Block deals? FII/DII stake trend?
+6. Risk/Reward (15%): R:R must be 2:1. Define T1 and Stop Loss.
 
-Return JSON with this exact shape:
+Data Integrity: Verify latest price/news timestamp. Source only NSE, BSE, or official filings.
+
+Return JSON:
 {
   "symbol": "${symbol}",
   "company": "string",
-  "exchange": "NSE",
-  "currency": "₹",
-  "cmp": number|null,
-  "as_of": "YYYY-MM-DD"|null,
-  "wps": number (0-100),
+  "cmp": number,
+  "wps": number,
   "verdict": "string",
   "summary": "string",
   "pillars": [
-    {"name":"Financial Health","score":0-100,"summary":"string"},
-    {"name":"Earnings Performance","score":0-100,"summary":"string"},
-    {"name":"Company Management","score":0-100,"summary":"string"},
-    {"name":"Future Growth","score":0-100,"summary":"string"},
-    {"name":"Intrinsic Value","score":0-100,"summary":"string"},
-    {"name":"Capital Efficiency","score":0-100,"summary":"string"},
-    {"name":"Market Sentiment","score":0-100,"summary":"string"}
+    {"name":"Relative Strength","score":0-100,"summary":"string"},
+    {"name":"Technical Validation","score":0-100,"summary":"string"},
+    {"name":"Sector Rotation","score":0-100,"summary":"string"},
+    {"name":"Fundamental Deep Dive","score":0-100,"summary":"string"},
+    {"name":"Institutional Moves","score":0-100,"summary":"string"},
+    {"name":"Risk/Reward","score":0-100,"summary":"string"}
   ],
-  "red_flags": ["string"...],
-  "assumptions": ["string"...],
-  "sources": [{"title":"string","url":"https://..."}...]
+  "exit_strategy": {"t1": number, "sl": number}
 }
-`.trim();
+`;
 
-  try{
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+  try {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        tools: [{ google_search: {} }],
-        generationConfig: { temperature: 0.2 }
+        tools: [{ google_search: {} }]
       })
     });
-
-    if(!resp.ok){
-      const bodyText = await resp.text().catch(() => '');
-      throw new Error(`HTTP ${resp.status}. ${bodyText.slice(0, 400)}`);
-    }
-
+    
     const data = await resp.json();
-    const candidate = data?.candidates?.[0];
-    const rawText = candidate?.content?.parts?.[0]?.text || '';
-    const parsed = safeParseJson(rawText);
+    const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "");
+    const d = JSON.parse(text);
 
-    if(!parsed){
-      renderError('Model returned malformed JSON', rawText.slice(0, 1200) || 'Empty response.');
-      return;
-    }
-
-    const meta = candidate?.groundingMetadata || null;
-    renderResult(parsed, meta);
-
-  }catch(e){
-    renderError('Request failed', e?.message || String(e));
-  }finally{
-    setBusy(false);
+    render(d);
+  } catch(e) {
+    $('#resultsPanel').innerHTML = `<div class="card" style="color:red">Audit Failed: ${e.message}</div>`;
+  } finally {
+    $('#loading').style.display = 'none';
   }
 }
 
-/* ---------------------------
-   Bindings + key restore
----------------------------- */
-(function init(){
-  const btn = $('#analyzeBtn');
-  btn.addEventListener('click', analyzeStock);
+function render(d){
+  const pillarsHtml = d.pillars.map(p => `
+    <div class="pillar col-4">
+      <div class="pillar-head">
+        <div class="pillar-name">${p.name}</div>
+        <div class="pillar-score">${p.score}%</div>
+      </div>
+      <div class="pillar-body">${p.summary}</div>
+    </div>
+  `).join('');
 
-  $('#stockInput').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' && !btn.disabled) analyzeStock();
-  });
+  $('#resultsPanel').innerHTML = `
+    <div class="grid">
+      <div class="col-8">
+        <div class="card">
+          <h1 style="color:var(--gold)">${d.symbol}</h1>
+          <div class="subhead">${d.company} | CMP: ₹${d.cmp}</div>
+          <div class="hr"></div>
+          <div class="summary">${d.summary}</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="kpi">
+          <div class="kpi-title">FINAL WPS SCORE</div>
+          <div class="kpi-score">${d.wps}%</div>
+          <div class="kpi-verdict">${d.verdict}</div>
+        </div>
+      </div>
+      ${pillarsHtml}
+      <div class="col-12">
+        <div class="card" style="border-left:4px solid var(--danger)">
+          <div class="label">EXIT TARGETS (WPS CALCULATED)</div>
+          <div class="row" style="margin-top:10px; gap:40px;">
+            <div><div class="small">Target 1 (T1)</div><div class="pillar-name">₹${d.exit_strategy?.t1 || '—'}</div></div>
+            <div><div class="small">Hard Stop Loss</div><div class="pillar-name" style="color:var(--danger)">₹${d.exit_strategy?.sl || '—'}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
-  try{
-    const saved = localStorage.getItem('wps_gemini_key');
-    if(saved){
-      $('#geminiKey').value = saved;
-      $('#rememberKey').checked = true;
-    }
-  }catch(_){}
-})();
+$('#analyzeBtn').addEventListener('click', analyzeStock);
 </script>
 </body>
 </html>
