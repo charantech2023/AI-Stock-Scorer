@@ -98,20 +98,15 @@ async function analyzeStock(){
   `;
 
   const prompt = `
-    Audit NSE:${sym}. 
-    1. Relative Strength: vs Nifty 50[cite: 5, 6].
-    2. Technical: 45-deg P&F trendline status[cite: 10, 12].
-    3. Fundamentals: YoY Profit > 25%, Debt/Equity < 0.5[cite: 19, 21].
-    4. Backtest: % Win rate of this strategy on this stock over 12 months[cite: 31].
-    
-    JSON Schema:
-    {
-      "symbol": "${sym}", "company": "Name", "cmp": 0, "wps": 0, "verdict": "Action",
-      "backtest": {"win_rate": 0, "trades": 0, "avg_return": 0},
-      "pillars": [{"name": "string", "score": 0, "summary": "string"}],
-      "targets": {"t1": 0, "sl": 0}
-    }
-  `;
+  Today's Date: February 27, 2026.
+  CRITICAL: You MUST use the google_search tool to find the LATEST live price 
+  and news for NSE:${symbol} from today's market session. 
+  
+  Do not use historical knowledge. If you cannot find today's price, 
+  set "cmp" to null.
+  
+  Perform the 6-Pillar Audit based on this fresh data...
+`;
 
   try {
     const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
