@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPS Trading Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060810;
+  --surface: #0d1117;
+  --surface2: #141922;
+  --surface3: #1c2433;
+  --border: #1e2d40;
+  --border2: #263650;
+  --text: #e2eaf5;
+  --text2: #6b83a0;
+  --text3: #3a4f68;
+  --gold: #e8b84b;
+  --gold-dim: rgba(232,184,75,0.12);
+  --green: #34d48a;
+  --green-dim: rgba(52,212,138,0.1);
+  --red: #f04a4a;
+  --red-dim: rgba(240,74,74,0.1);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.1);
+  --blue: #4a9eff;
+  --blue-dim: rgba(74,158,255,0.1);
+  --purple: #b87fff;
+  --nav-h: 64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* BG */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(232,184,75,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,184,75,0.03) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 25s linear infinite;pointer-events:none;z-index:0;}
+@keyframes gridMove{0%{transform:translateY(0);}100%{transform:translateY(60px);}}
+.bg-glow{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(232,184,75,0.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(6,8,16,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;padding:0 20px;gap:0;}
+.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);margin-right:32px;white-space:nowrap;}
+.nav-brand span{color:var(--gold);}
+.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto;}
+.nav-tab{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;border:none;background:transparent;color:var(--text3);white-space:nowrap;transition:all 0.18s;font-family:'IBM Plex Mono',monospace;}
+.nav-tab:hover{color:var(--text2);background:var(--surface2);}
+.nav-tab.active{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(232,184,75,0.25);}
+.nav-key{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.key-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);width:200px;outline:none;transition:border-color 0.2s;}
+.key-input:focus{border-color:rgba(232,184,75,0.5);}
+.key-input::placeholder{color:var(--text3);}
+.key-label{font-size:10px;color:var(--text3);letter-spacing:1px;white-space:nowrap;}
+
+/* MAIN */
+.main{padding-top:calc(var(--nav-h) + 32px);padding-bottom:80px;max-width:860px;margin:0 auto;padding-left:20px;padding-right:20px;position:relative;z-index:1;}
+
+/* PAGE SECTIONS */
+.page{display:none;animation:fadeUp 0.35s ease both;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:32px;}
+.page-eyebrow{font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.page-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold);}
+.page-title{font-family:'Syne',sans-serif;font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-1px;line-height:1.1;}
+.page-title em{font-style:normal;color:var(--gold);}
+.page-sub{font-size:12px;color:var(--text3);margin-top:6px;letter-spacing:0.5px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:16px;transition:border-color 0.2s;}
+.card:hover{border-color:var(--border2);}
+.card-title{font-size:10px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:14px;}
+
+/* SEARCH BOX */
+.apikey-banner{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.apikey-banner-label{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+.apikey-banner-input{flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);outline:none;transition:border-color 0.2s;}
+.apikey-banner-input:focus{border-color:var(--gold);}
+.apikey-banner-input::placeholder{color:var(--text3);}
+.apikey-banner-hint{font-size:10px;color:var(--text3);width:100%;margin-top:2px;}
+.apikey-banner-hint a{color:var(--gold);text-decoration:none;}
+.search-box{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;}
+.search-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,184,75,0.07);}
+.search-input{flex:1;background:transparent;border:none;outline:none;padding:18px 20px;font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text);letter-spacing:2px;text-transform:uppercase;}
+.search-input::placeholder{color:var(--text3);font-weight:400;letter-spacing:0.5px;text-transform:none;}
+.search-btn{padding:18px 24px;background:var(--gold);border:none;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:background 0.2s;white-space:nowrap;}
+.search-btn:hover{background:#f5cc6a;}
+.search-btn:disabled{background:var(--surface3);color:var(--text3);cursor:not-allowed;}
+
+/* LOADING */
+.loading-panel{display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:36px;text-align:center;margin-bottom:16px;}
+.loading-panel.active{display:block;}
+.loader-sym{font-size:24px;font-weight:700;color:var(--gold);letter-spacing:3px;margin-bottom:20px;animation:blink 1.4s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.loader-steps{display:flex;flex-direction:column;gap:8px;max-width:340px;margin:0 auto;text-align:left;}
+.lstep{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:10px;transition:color 0.3s;}
+.lstep.active{color:var(--gold);}
+.lstep.done{color:var(--green);}
+.ldot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* RESULTS */
+.results{display:none;animation:fadeUp 0.4s ease both;}
+.results.active{display:block;}
+.stock-header{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:22px 24px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.sym-big{font-size:26px;font-weight:700;color:var(--gold);letter-spacing:2px;}
+.stock-meta{flex:1;}
+.stock-price{font-size:20px;font-weight:600;margin-bottom:3px;}
+.stock-details{font-size:11px;color:var(--text2);}
+.regime-tag{padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:2px;}
+.tag-on{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,212,138,0.25);}
+.tag-neu{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.25);}
+.tag-off{background:var(--red-dim);color:var(--red);border:1px solid rgba(240,74,74,0.25);}
+.score-hero{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;margin-bottom:14px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
+.ring-wrap{position:relative;flex-shrink:0;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--surface3);stroke-width:7;}
+.ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1),stroke 0.5s;}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-size:34px;font-weight:700;line-height:1;transition:color 0.5s;}
+.ring-pct{font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
+.verdict-wrap{flex:1;min-width:180px;}
+.vlabel{font-size:10px;letter-spacing:4px;color:var(--text3);margin-bottom:8px;}
+.vmain{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px;line-height:1.2;}
+.vbody{font-size:12px;color:var(--text2);line-height:1.7;}
+.action-banner{border-radius:12px;padding:18px 20px;margin-bottom:14px;display:flex;gap:14px;align-items:center;}
+.action-icon{font-size:22px;flex-shrink:0;}
+.action-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.action-sub{font-size:11px;line-height:1.6;}
+.pillars-label{font-size:10px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:12px;}
+.pillars-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.pcardi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;animation:fadeUp 0.35s ease both;}
+.ptop{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.pid{font-size:10px;color:var(--gold);font-weight:700;letter-spacing:1px;min-width:20px;}
+.ptitle{flex:1;font-size:12px;font-weight:600;}
+.pwt{font-size:10px;color:var(--text3);}
+.bar-track{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.bar-fill{height:100%;border-radius:2px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
+.bar-meta{display:flex;justify-content:space-between;align-items:center;}
+.pval{font-size:18px;font-weight:700;}
+.pcontrib{font-size:10px;color:var(--text3);}
+.preason{font-size:11px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);padding-top:10px;margin-top:6px;}
+.flag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-right:3px;margin-bottom:4px;}
+.flag-pass{background:var(--green-dim);color:var(--green);}
+.flag-fail{background:var(--red-dim);color:var(--red);}
+.flag-warn{background:var(--amber-dim);color:var(--amber);}
+.risks-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:14px;}
+.risks-title{font-size:10px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:12px;}
+.risk-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;font-size:12px;color:var(--text2);line-height:1.5;}
+.rdot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+
+/* SAVE TO JOURNAL BTN */
+.btn-save-journal{width:100%;padding:13px;background:var(--gold-dim);border:1px solid rgba(232,184,75,0.3);border-radius:10px;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all 0.2s;margin-bottom:10px;}
+.btn-save-journal:hover{background:rgba(232,184,75,0.2);}
+.btn-new{width:100%;padding:13px;background:transparent;border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.btn-new:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ERROR */
+.error-box{display:none;background:var(--red-dim);border:1px solid rgba(240,74,74,0.3);border-radius:12px;padding:18px 22px;margin-bottom:14px;font-size:12px;color:var(--red);}
+.error-box.active{display:block;}
+
+/* ── CHECKLIST ─────────────────────────────────────── */
+.checklist-date{font-size:11px;color:var(--text3);margin-bottom:20px;letter-spacing:1px;}
+.cl-section{margin-bottom:24px;}
+.cl-section-title{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.cl-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(30,45,64,0.5);}
+.cl-item:last-child{border-bottom:none;}
+.cl-cb{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.15s;}
+.cl-cb.checked{background:var(--green);border-color:var(--green);color:#000;}
+.cl-text{flex:1;}
+.cl-main{font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;}
+.cl-sub{font-size:11px;color:var(--text3);}
+.cl-source{font-size:10px;color:var(--blue);margin-top:2px;}
+.cl-progress{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
+.cl-prog-bar{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.cl-prog-fill{height:100%;background:var(--gold);border-radius:3px;transition:width 0.4s ease;}
+.cl-prog-text{font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap;}
+.btn-reset-cl{padding:8px 16px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.btn-reset-cl:hover{border-color:var(--red);color:var(--red);}
+
+/* ── JOURNAL ─────────────────────────────────────── */
+.journal-empty{text-align:center;padding:60px 20px;color:var(--text3);font-size:13px;line-height:2;}
+.journal-empty strong{display:block;font-size:20px;color:var(--text2);margin-bottom:8px;}
+.journal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:12px;transition:border-color 0.2s;}
+.journal-card:hover{border-color:var(--border2);}
+.jc-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.jc-sym{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:1px;}
+.jc-verdict{padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:1px;}
+.jc-date{font-size:10px;color:var(--text3);margin-left:auto;}
+.jc-wps{font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.jc-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.jc-pillars{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;}
+.jc-p{text-align:center;}
+.jc-p-label{font-size:9px;color:var(--text3);display:block;margin-bottom:3px;}
+.jc-p-val{font-size:12px;font-weight:700;}
+.jc-risks{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.jc-risks-title{font-size:10px;color:var(--text3);letter-spacing:2px;margin-bottom:6px;}
+.jc-risk{font-size:11px;color:var(--text2);margin-bottom:3px;}
+.jc-actions{display:flex;gap:8px;margin-top:12px;}
+.btn-jc-del{padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.btn-jc-del:hover{border-color:var(--red);color:var(--red);}
+.journal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.jstat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.jstat-val{font-size:24px;font-weight:700;color:var(--gold);margin-bottom:4px;}
+.jstat-label{font-size:10px;color:var(--text3);letter-spacing:1px;}
+
+/* ── WATCHLIST ─────────────────────────────────────── */
+.watchlist-empty{text-align:center;padding:60px 20px;color:var(--text3);font-size:13px;line-height:2;}
+.watchlist-empty strong{display:block;font-size:20px;color:var(--text2);margin-bottom:8px;}
+.wl-add{display:flex;gap:10px;margin-bottom:20px;}
+.wl-input{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--text);outline:none;letter-spacing:2px;text-transform:uppercase;transition:border-color 0.2s;}
+.wl-input:focus{border-color:var(--gold);}
+.wl-input::placeholder{color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;}
+.btn-wl-add{padding:12px 20px;background:var(--gold);border:none;border-radius:10px;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:background 0.2s;}
+.btn-wl-add:hover{background:#f5cc6a;}
+.wl-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;transition:border-color 0.2s;}
+.wl-item:hover{border-color:var(--border2);}
+.wl-sym{font-size:16px;font-weight:700;color:var(--gold);letter-spacing:1px;min-width:120px;}
+.wl-note-wrap{flex:1;}
+.wl-note{font-size:12px;color:var(--text2);}
+.wl-date{font-size:10px;color:var(--text3);}
+.wl-actions{display:flex;gap:8px;margin-left:auto;}
+.btn-wl-analyze{padding:7px 14px;background:var(--gold-dim);border:1px solid rgba(232,184,75,0.25);border-radius:7px;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.btn-wl-analyze:hover{background:rgba(232,184,75,0.2);}
+.btn-wl-del{padding:7px 10px;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.btn-wl-del:hover{border-color:var(--red);color:var(--red);}
+.wl-note-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);outline:none;}
+.wl-note-input::placeholder{color:var(--text3);}
+.wl-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.wl-filter-btn{padding:6px 14px;border-radius:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text3);transition:all 0.15s;letter-spacing:0.5px;}
+.wl-filter-btn.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(232,184,75,0.25);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-size:12px;color:var(--text);z-index:999;transition:transform 0.3s ease;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){
+  .pillars-grid{grid-template-columns:1fr;}
+  .jc-pillars{grid-template-columns:repeat(4,1fr);}
+  .journal-stats{grid-template-columns:1fr 1fr;}
+  .key-input{width:140px;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">WPS<span>.</span>AI</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('scorer')">⚡ AI SCORER</button>
+    <button class="nav-tab" onclick="showPage('checklist')">☑ CHECKLIST</button>
+    <button class="nav-tab" onclick="showPage('journal')">📓 JOURNAL</button>
+    <button class="nav-tab" onclick="showPage('watchlist')">👁 WATCHLIST</button>
+  </div>
+
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ══════════════════ AI SCORER ══════════════════ -->
+<div class="page active" id="page-scorer">
+  <div class="page-header">
+    <div class="page-eyebrow">7-Pillar Methodology v2.0</div>
+    <div class="page-title">AI <em>Stock</em> Scorer</div>
+    <div class="page-sub">// TYPE A SYMBOL. GEMINI ANALYSES ALL 7 PILLARS INSTANTLY.</div>
+  </div>
+
+  <!-- API Key Banner -->
+  <div class="apikey-banner">
+    <div class="apikey-banner-label">🔑 Gemini API Key</div>
+    <input class="apikey-banner-input" id="geminiKey" type="password" placeholder="Paste your key here — starts with AIza..."/>
+    <div class="apikey-banner-hint">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> · stored only in this browser tab, never saved</div>
+  </div>
+
+  <div style="margin-bottom:16px;">
+    <div class="search-box">
+      <input class="search-input" id="stockInput" placeholder="e.g. NATCOPHARM" onkeydown="if(event.key==='Enter')analyzeStock()"/>
+      <button class="search-btn" id="analyzeBtn" onclick="analyzeStock()">ANALYZE →</button>
+    </div>
+  </div>
+
+  <div class="loading-panel" id="loadingPanel">
+    <div class="loader-sym" id="loaderSym">···</div>
+    <div class="loader-steps">
+      <div class="lstep" id="ls0"><span class="ldot"></span>Identifying stock &amp; market regime</div>
+      <div class="lstep" id="ls1"><span class="ldot"></span>Scanning technical structure (P&amp;F + EMA)</div>
+      <div class="lstep" id="ls2"><span class="ldot"></span>Analysing fundamentals &amp; earnings</div>
+      <div class="lstep" id="ls3"><span class="ldot"></span>Checking FII/DII &amp; institutional moves</div>
+      <div class="lstep" id="ls4"><span class="ldot"></span>Calculating sector rotation &amp; R:R</div>
+      <div class="lstep" id="ls5"><span class="ldot"></span>Computing WPS score &amp; verdict</div>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+  <div class="results" id="resultsPanel"></div>
+</div>
+
+<!-- ══════════════════ CHECKLIST ══════════════════ -->
+<div class="page" id="page-checklist">
+  <div class="page-header">
+    <div class="page-eyebrow">Monday Pre-Market</div>
+    <div class="page-title">Weekly <em>Checklist</em></div>
+    <div class="page-sub">// COMPLETE BEFORE MARKETS OPEN EVERY WEEK</div>
+  </div>
+
+  <div class="cl-progress">
+    <div class="cl-prog-bar"><div class="cl-prog-fill" id="clProgFill" style="width:0%"></div></div>
+    <div class="cl-prog-text" id="clProgText">0 / 10</div>
+    <button class="btn-reset-cl" onclick="resetChecklist()">RESET</button>
+  </div>
+
+  <div id="checklistBody"></div>
+</div>
+
+<!-- ══════════════════ JOURNAL ══════════════════ -->
+<div class="page" id="page-journal">
+  <div class="page-header">
+    <div class="page-eyebrow">Trade History</div>
+    <div class="page-title">Trade <em>Journal</em></div>
+    <div class="page-sub">// SAVED ANALYSES · REVIEW YOUR DECISIONS</div>
+  </div>
+  <div id="journalBody"></div>
+</div>
+
+<!-- ══════════════════ WATCHLIST ══════════════════ -->
+<div class="page" id="page-watchlist">
+  <div class="page-header">
+    <div class="page-eyebrow">Stocks to Watch</div>
+    <div class="page-title">My <em>Watchlist</em></div>
+    <div class="page-sub">// TRACK STOCKS WAITING FOR THE RIGHT SETUP</div>
+  </div>
+
+  <div class="wl-add">
+    <input class="wl-input" id="wlInput" placeholder="Add stock symbol..." onkeydown="if(event.key==='Enter')addToWatchlist()"/>
+    <button class="btn-wl-add" onclick="addToWatchlist()">+ ADD</button>
+  </div>
+
+  <div class="wl-filters" id="wlFilters">
+    <button class="wl-filter-btn active" onclick="setWlFilter('all',this)">ALL</button>
+    <button class="wl-filter-btn" onclick="setWlFilter('watchlist',this)">WATCHLIST</button>
+    <button class="wl-filter-btn" onclick="setWlFilter('avoid',this)">AVOID</button>
+  </div>
+
+  <div id="watchlistBody"></div>
+</div>
+
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────
+const PILLAR_META = [
+  {id:1,name:"Relative Strength",short:"RS",    weight:0.15,color:"#4a9eff"},
+  {id:2,name:"Technical (P&F)",  short:"P&F",   weight:0.22,color:"#e8b84b"},
+  {id:3,name:"Sector Rotation",  short:"Sector",weight:0.10,color:"#34d48a"},
+  {id:4,name:"Fundamentals",     short:"FA",    weight:0.20,color:"#b87fff"},
+  {id:5,name:"Institutional",    short:"FII",   weight:0.15,color:"#f5a623"},
+  {id:6,name:"Risk/Reward",      short:"R:R",   weight:0.13,color:"#f04a4a"},
+  {id:7,name:"Liquidity",        short:"Liq",   weight:0.05,color:"#2ec8c8"},
+];
+
+const CHECKLIST_DATA = [
+  {section:"Market Regime", items:[
+    {main:"Nifty 50 vs 200 EMA",sub:"Is Nifty above, at, or below its 200 EMA? → Determine RISK-ON / NEUTRAL / RISK-OFF",source:"TradingView / Chartink"},
+    {main:"India VIX Level",sub:"Check VIX: <18 = calm, 18-22 = caution, >22 = no new trades",source:"NSE India (nseindia.com/live_market/dynaContent/live_watch/VIX_details.htm)"},
+  ]},
+  {section:"Sector Intelligence", items:[
+    {main:"Top 3 Leading Sectors",sub:"Which sectors are leading vs Nifty? Use sector ETF RS ranking",source:"Chartink Sector Scanner"},
+    {main:"FII Net Buy/Sell",sub:"What is the net FII inflow/outflow this week? Which sectors are they buying?",source:"NSE FII Data Page"},
+  ]},
+  {section:"Scanner & Technicals", items:[
+    {main:"Run Chartink Master Scanner",sub:"Filter for Nifty 500 stocks passing all technical conditions",source:"Chartink.com"},
+    {main:"P&F Chart Check",sub:"For top scan results: is each stock above its 45° P&F trendline?",source:"Chartink P&F Charts"},
+  ]},
+  {section:"Fundamentals & Institutional", items:[
+    {main:"NSE Bulk/Block Deals",sub:"Any large institutional entries last week? Check for known fund names",source:"NSE Bulk Deals Page"},
+    {main:"WPS Score Top Candidates",sub:"Run AI scorer on top 3-5 stocks from scan. Min WPS 70% to proceed",source:"This App — AI Scorer tab"},
+  ]},
+  {section:"Portfolio Review", items:[
+    {main:"Open Positions Check",sub:"Review each open trade: approaching T1, T2, or SL level?",source:"Your Broker Terminal"},
+    {main:"Key Events This Week",sub:"Earnings results, RBI policy, global macro data, F&O expiry",source:"Moneycontrol Calendar"},
+  ]},
+];
+
+const SYSTEM_PROMPT = `You are an expert Indian stock market analyst using the Institutional-Grade 7-Pillar WPS Methodology v2.0.
+
+When given a stock symbol, analyze it across all 7 pillars and return a JSON object ONLY — no markdown, no explanation outside the JSON.
+
+Pillar weights:
+- P1 Relative Strength (15%): RS Rating ≥70, RS trending up 10+ sessions, volume >1.5x 20-day avg
+- P2 Technical P&F (22%): Above 45° P&F trendline, bullish pattern, breakout volume >2x avg
+- P3 Sector Rotation (10%): Top 3 leading sector, sector RS ≥60, FII sector flow positive
+- P4 Fundamentals (20%): Net profit growth >25% YoY x2 quarters, D/E <0.5, positive OCF, promoter pledge <10%
+- P5 Institutional (15%): Block/bulk deals, FII/DII stake increasing QoQ, promoter buying, MF overlap ≥3
+- P6 Risk/Reward (13%): R:R ≥2:1, SL below P&F support or 200 EMA, max 1.5% portfolio risk
+- P7 Liquidity (5%): Daily turnover >₹5 Cr, mcap ≥₹5000 Cr, no circuit risk
+
+Market Regime: RISK-ON (Nifty above 200 EMA, VIX<18), NEUTRAL (within 2%, VIX 18-22), RISK-OFF (below 200 EMA, VIX>22)
+
+Return ONLY this JSON (no markdown fences):
+{"symbol":"STOCK","company":"Full Name","cmp":"₹XXX","mcap":"₹XX,XXX Cr","sector":"Sector","regime":"RISK-ON","regime_reason":"brief reason","pillars":[{"id":1,"score":0-100,"flags":[{"type":"pass|fail|warn","text":"short text"}],"reason":"2 sentence analysis"},{"id":2,"score":0-100,"flags":[],"reason":""},{"id":3,"score":0-100,"flags":[],"reason":""},{"id":4,"score":0-100,"flags":[],"reason":""},{"id":5,"score":0-100,"flags":[],"reason":""},{"id":6,"score":0-100,"flags":[],"reason":""},{"id":7,"score":0-100,"flags":[],"reason":""}],"wps":0-100,"verdict":"HIGH CONVICTION TRADE|TRADE — Standard Size|WATCHLIST — Not Yet|AVOID|NO TRADE — Risk-Off","verdict_color":"green|gold|amber|red","verdict_reason":"2 sentence explanation","key_risks":["risk1","risk2","risk3"],"watch_for":"condition to make tradeable","sizing":"5-7% portfolio|3-5% portfolio|2-3% portfolio|NO TRADE"}`;
+
+// ─── STATE ────────────────────────────────────────────────────
+let checklistState = JSON.parse(localStorage.getItem('wps_checklist') || '{}');
+let journal        = JSON.parse(localStorage.getItem('wps_journal')   || '[]');
+let watchlist      = JSON.parse(localStorage.getItem('wps_watchlist') || '[]');
+let currentResult  = null;
+let wlFilter       = 'all';
+
+// ─── NAV ──────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id==='checklist') renderChecklist();
+  if (id==='journal')   renderJournal();
+  if (id==='watchlist') renderWatchlist();
+}
+
+// ─── TOAST ────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ─── SCORER ───────────────────────────────────────────────────
+function scoreColor(s) {
+  if (s>=75) return 'var(--green)';
+  if (s>=55) return 'var(--gold)';
+  if (s>=35) return 'var(--amber)';
+  return 'var(--red)';
+}
+function regimeTag(r) {
+  if (r==='RISK-ON')  return `<span class="regime-tag tag-on">● RISK-ON</span>`;
+  if (r==='NEUTRAL')  return `<span class="regime-tag tag-neu">◐ NEUTRAL</span>`;
+  return `<span class="regime-tag tag-off">● RISK-OFF</span>`;
+}
+
+async function analyzeStock() {
+  const symbol = document.getElementById('stockInput').value.trim().toUpperCase();
+  if (!symbol) return;
+  const apiKey = document.getElementById('geminiKey').value.trim();
+  if (!apiKey) { showError('Paste your Gemini API key in the top-right corner first.'); return; }
+
+  document.getElementById('errorBox').classList.remove('active');
+  document.getElementById('resultsPanel').classList.remove('active');
+  document.getElementById('resultsPanel').innerHTML = '';
+  document.getElementById('loadingPanel').classList.add('active');
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('loaderSym').textContent = symbol;
+
+  const lids = ['ls0','ls1','ls2','ls3','ls4','ls5'];
+  lids.forEach(id => { const el=document.getElementById(id); el.className='lstep'; });
+  let si=0;
+  const timer = setInterval(()=>{
+    if(si>0){ const prev=document.getElementById(lids[si-1]); prev.className='lstep done'; }
+    if(si<lids.length){ document.getElementById(lids[si]).className='lstep active'; si++; }
+    else clearInterval(timer);
+  }, 900);
+
+  try {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents:[{parts:[{text: SYSTEM_PROMPT+'\n\nAnalyze NSE stock: '+symbol+'\nReturn JSON only.'}]}],
+        generationConfig:{temperature:0.2,maxOutputTokens:4000}
+      })
+    });
+    clearInterval(timer);
+    lids.forEach(id=>{ document.getElementById(id).className='lstep done'; });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message||'Gemini error');
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if (!raw) throw new Error('Empty response — try again');
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s===-1||e===-1) throw new Error('Could not read response — try again');
+    const result = JSON.parse(raw.slice(s,e+1));
+    currentResult = result;
+    document.getElementById('loadingPanel').classList.remove('active');
+    document.getElementById('analyzeBtn').disabled = false;
+    renderResult(result);
+  } catch(err) {
+    clearInterval(timer);
+    document.getElementById('loadingPanel').classList.remove('active');
+    document.getElementById('analyzeBtn').disabled = false;
+    showError(err.message);
+  }
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.innerHTML = '⚠ '+msg;
+  b.classList.add('active');
+}
+
+function renderResult(d) {
+  const wps = d.wps;
+  const circ = 283;
+  const offset = circ - (wps/100)*circ;
+  const rc = scoreColor(wps);
+  const vc = {green:'var(--green)',gold:'var(--gold)',amber:'var(--amber)',red:'var(--red)'}[d.verdict_color]||'var(--text2)';
+  let bBg,bBdr,bIcon;
+  if(d.verdict_color==='green'){bBg='var(--green-dim)';bBdr='rgba(52,212,138,0.3)';bIcon='✅';}
+  else if(d.verdict_color==='gold'){bBg='var(--gold-dim)';bBdr='rgba(232,184,75,0.3)';bIcon='📊';}
+  else if(d.verdict_color==='amber'){bBg='var(--amber-dim)';bBdr='rgba(245,166,35,0.3)';bIcon='👀';}
+  else{bBg='var(--red-dim)';bBdr='rgba(240,74,74,0.3)';bIcon='🚫';}
+
+  const html = `
+  <div class="stock-header">
+    <div class="sym-big">${d.symbol}</div>
+    <div class="stock-meta">
+      <div class="stock-price">${d.cmp}</div>
+      <div class="stock-details">${d.company} · ${d.sector} · ${d.mcap}</div>
+    </div>
+    ${regimeTag(d.regime)}
+  </div>
+  <div class="score-hero">
+    <div class="ring-wrap">
+      <svg width="116" height="116" viewBox="0 0 116 116">
+        <circle class="ring-bg" cx="58" cy="58" r="45"/>
+        <circle class="ring-fill" id="ringFill" cx="58" cy="58" r="45"
+          stroke="${rc}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="ring-num" style="color:${rc}">${wps}</div>
+        <div class="ring-pct">WPS %</div>
+      </div>
+    </div>
+    <div class="verdict-wrap">
+      <div class="vlabel">// VERDICT</div>
+      <div class="vmain" style="color:${vc}">${d.verdict}</div>
+      <div class="vbody">${d.verdict_reason}</div>
+    </div>
+  </div>
+  <div class="action-banner" style="background:${bBg};border:1px solid ${bBdr};">
+    <div class="action-icon">${bIcon}</div>
+    <div>
+      <div class="action-title" style="color:${vc}">Position Size: ${d.sizing}</div>
+      <div class="action-sub" style="color:var(--text2)">${d.watch_for}</div>
+    </div>
+  </div>
+  <div class="pillars-label">// PILLAR BREAKDOWN</div>
+  <div class="pillars-grid">
+    ${PILLAR_META.map((pm,i)=>{
+      const p=d.pillars[i]||{};
+      const sc=p.score||0;
+      const contrib=Math.round(pm.weight*sc);
+      const maxC=Math.round(pm.weight*100);
+      const flags=(p.flags||[]).map(f=>`<span class="flag flag-${f.type}">${f.type==='pass'?'✓':f.type==='fail'?'✗':'!'} ${f.text}</span>`).join('');
+      return `<div class="pcardi" style="animation-delay:${i*0.05}s">
+        <div class="ptop">
+          <div class="pid">P${pm.id}</div>
+          <div class="ptitle">${pm.name}</div>
+          <div class="pwt">×${Math.round(pm.weight*100)}%</div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:${pm.color}" id="bf${i}" data-t="${sc}"></div></div>
+        <div class="bar-meta">
+          <div class="pval" style="color:${scoreColor(sc)}">${sc}%</div>
+          <div class="pcontrib">${contrib}/${maxC}pts</div>
+        </div>
+        <div class="preason">${flags?`<div style="margin-bottom:5px">${flags}</div>`:''}${p.reason||''}</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <div class="risks-panel">
+    <div class="risks-title">// KEY RISKS</div>
+    ${(d.key_risks||[]).map(r=>`<div class="risk-item"><div class="rdot" style="background:var(--red)"></div><div>${r}</div></div>`).join('')}
+  </div>
+  <button class="btn-save-journal" onclick="saveToJournal()">💾 SAVE TO JOURNAL</button>
+  <button class="btn-new" onclick="newSearch()">← ANALYZE ANOTHER STOCK</button>`;
+
+  const panel = document.getElementById('resultsPanel');
+  panel.innerHTML = html;
+  panel.classList.add('active');
+
+  setTimeout(()=>{
+    const ring = document.getElementById('ringFill');
+    if(ring) ring.style.strokeDashoffset = offset;
+    PILLAR_META.forEach((_,i)=>{
+      const b=document.getElementById('bf'+i);
+      if(b) setTimeout(()=>{ b.style.width=b.getAttribute('data-t')+'%'; },i*80);
+    });
+  },120);
+}
+
+function newSearch() {
+  document.getElementById('resultsPanel').classList.remove('active');
+  document.getElementById('resultsPanel').innerHTML='';
+  document.getElementById('stockInput').value='';
+  document.getElementById('stockInput').focus();
+  currentResult=null;
+}
+
+// ─── JOURNAL ──────────────────────────────────────────────────
+function saveToJournal() {
+  if (!currentResult) return;
+  const entry = {
+    ...currentResult,
+    savedAt: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
+    id: Date.now()
+  };
+  journal.unshift(entry);
+  localStorage.setItem('wps_journal', JSON.stringify(journal));
+  toast('✓ Saved to Journal');
+}
+
+function deleteJournalEntry(id) {
+  journal = journal.filter(e => e.id !== id);
+  localStorage.setItem('wps_journal', JSON.stringify(journal));
+  renderJournal();
+}
+
+function renderJournal() {
+  const body = document.getElementById('journalBody');
+  if (journal.length === 0) {
+    body.innerHTML = `<div class="journal-empty"><strong>No entries yet</strong>Analyse a stock and click<br>"Save to Journal" to store it here.</div>`;
+    return;
+  }
+
+  const avgWps = Math.round(journal.reduce((s,e)=>s+e.wps,0)/journal.length);
+  const tradeable = journal.filter(e=>e.wps>=70).length;
+
+  const statsHtml = `<div class="journal-stats">
+    <div class="jstat"><div class="jstat-val">${journal.length}</div><div class="jstat-label">ANALYSES</div></div>
+    <div class="jstat"><div class="jstat-val">${tradeable}</div><div class="jstat-label">TRADEABLE (≥70)</div></div>
+    <div class="jstat"><div class="jstat-val">${avgWps}%</div><div class="jstat-label">AVG WPS</div></div>
+  </div>`;
+
+  const entriesHtml = journal.map(e => {
+    const vc = {green:'var(--green)',gold:'var(--gold)',amber:'var(--amber)',red:'var(--red)'}[e.verdict_color]||'var(--text2)';
+    const vBg = {green:'var(--green-dim)',gold:'var(--gold-dim)',amber:'var(--amber-dim)',red:'var(--red-dim)'}[e.verdict_color]||'var(--surface3)';
+    return `<div class="journal-card">
+      <div class="jc-top">
+        <div class="jc-sym">${e.symbol}</div>
+        <div class="jc-verdict" style="background:${vBg};color:${vc};border:1px solid ${vc}">${e.verdict}</div>
+        <div class="jc-date">${e.savedAt}</div>
+      </div>
+      <div class="jc-wps" style="color:${scoreColor(e.wps)}">${e.wps}<span style="font-size:14px;color:var(--text3)"> WPS</span></div>
+      <div class="jc-meta">${e.cmp} · ${e.mcap} · ${e.sector} · ${regimeTag(e.regime)}</div>
+      <div class="jc-pillars">
+        ${PILLAR_META.map((pm,i)=>{
+          const sc=(e.pillars[i]||{}).score||0;
+          return `<div class="jc-p"><span class="jc-p-label">${pm.short}</span><span class="jc-p-val" style="color:${scoreColor(sc)}">${sc}</span></div>`;
+        }).join('')}
+      </div>
+      ${e.key_risks&&e.key_risks.length?`<div class="jc-risks"><div class="jc-risks-title">RISKS</div>${e.key_risks.slice(0,2).map(r=>`<div class="jc-risk">· ${r}</div>`).join('')}</div>`:''}
+      <div class="jc-actions">
+        <button class="btn-jc-del" onclick="deleteJournalEntry(${e.id})">🗑 DELETE</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = statsHtml + entriesHtml;
+}
+
+// ─── CHECKLIST ────────────────────────────────────────────────
+function renderChecklist() {
+  const body = document.getElementById('checklistBody');
+  let globalIdx = 0;
+  let totalChecked = 0;
+  let totalItems = 0;
+
+  const html = CHECKLIST_DATA.map(section => {
+    const items = section.items.map(item => {
+      const idx = globalIdx++;
+      totalItems++;
+      const checked = checklistState[idx] === true;
+      if (checked) totalChecked++;
+      return `<div class="cl-item">
+        <div class="cl-cb ${checked?'checked':''}" id="clcb-${idx}" onclick="toggleCheck(${idx})">
+          ${checked?'✓':''}
+        </div>
+        <div class="cl-text">
+          <div class="cl-main">${item.main}</div>
+          <div class="cl-sub">${item.sub}</div>
+          <div class="cl-source">→ ${item.source}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="cl-section">
+      <div class="cl-section-title">${section.section}</div>
+      ${items}
+    </div>`;
+  }).join('');
+
+  body.innerHTML = html;
+  updateClProgress(totalChecked, totalItems);
+}
+
+function toggleCheck(idx) {
+  checklistState[idx] = !checklistState[idx];
+  localStorage.setItem('wps_checklist', JSON.stringify(checklistState));
+  const cb = document.getElementById('clcb-'+idx);
+  cb.classList.toggle('checked', checklistState[idx]);
+  cb.textContent = checklistState[idx] ? '✓' : '';
+  // recount
+  let done=0, total=0;
+  CHECKLIST_DATA.forEach(s=>{ total+=s.items.length; });
+  for(let i=0;i<total;i++) if(checklistState[i]) done++;
+  updateClProgress(done,total);
+}
+
+function updateClProgress(done, total) {
+  const pct = total>0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('clProgFill').style.width = pct+'%';
+  document.getElementById('clProgText').textContent = done+' / '+total;
+  if(pct===100) toast('✅ Checklist complete! Ready to trade.');
+}
+
+function resetChecklist() {
+  checklistState = {};
+  localStorage.setItem('wps_checklist', JSON.stringify(checklistState));
+  renderChecklist();
+}
+
+// ─── WATCHLIST ────────────────────────────────────────────────
+function addToWatchlist() {
+  const sym = document.getElementById('wlInput').value.trim().toUpperCase();
+  if (!sym) return;
+  if (watchlist.find(w=>w.symbol===sym)) { toast('Already in watchlist'); return; }
+  watchlist.unshift({ symbol:sym, note:'', addedAt: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), verdict:null, wps:null, id:Date.now() });
+  localStorage.setItem('wps_watchlist', JSON.stringify(watchlist));
+  document.getElementById('wlInput').value='';
+  renderWatchlist();
+  toast('✓ '+sym+' added to watchlist');
+}
+
+function removeFromWatchlist(id) {
+  watchlist = watchlist.filter(w=>w.id!==id);
+  localStorage.setItem('wps_watchlist', JSON.stringify(watchlist));
+  renderWatchlist();
+}
+
+function updateNote(id, val) {
+  const w = watchlist.find(w=>w.id===id);
+  if (w) { w.note=val; localStorage.setItem('wps_watchlist',JSON.stringify(watchlist)); }
+}
+
+function analyzeFromWatchlist(symbol) {
+  document.getElementById('stockInput').value = symbol;
+  // switch to scorer tab
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-scorer').classList.add('active');
+  document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  analyzeStock();
+}
+
+function setWlFilter(f, btn) {
+  wlFilter = f;
+  document.querySelectorAll('.wl-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWatchlist();
+}
+
+function renderWatchlist() {
+  const body = document.getElementById('watchlistBody');
+  if (watchlist.length===0) {
+    body.innerHTML = `<div class="watchlist-empty"><strong>Watchlist is empty</strong>Type a stock symbol above and click + ADD.<br>Save analyses from the AI Scorer to auto-populate verdicts.</div>`;
+    return;
+  }
+
+  // Merge journal data into watchlist for verdicts
+  watchlist.forEach(w => {
+    const match = journal.find(j=>j.symbol===w.symbol);
+    if (match) { w.verdict=match.verdict; w.wps=match.wps; w.verdict_color=match.verdict_color; }
+  });
+
+  let filtered = watchlist;
+  if (wlFilter==='watchlist') filtered = watchlist.filter(w=>w.verdict&&w.verdict.includes('WATCHLIST'));
+  if (wlFilter==='avoid') filtered = watchlist.filter(w=>w.verdict&&(w.verdict.includes('AVOID')||w.verdict.includes('Risk-Off')));
+
+  if (filtered.length===0) {
+    body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3);font-size:12px;">No stocks match this filter.</div>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map(w => {
+    const vc = w.verdict_color ? {green:'var(--green)',gold:'var(--gold)',amber:'var(--amber)',red:'var(--red)'}[w.verdict_color] : 'var(--text3)';
+    return `<div class="wl-item">
+      <div class="wl-sym">${w.symbol}</div>
+      <div class="wl-note-wrap">
+        ${w.verdict ? `<div style="font-size:11px;font-weight:700;color:${vc};margin-bottom:3px;">${w.verdict} · WPS ${w.wps}%</div>` : ''}
+        <input class="wl-note-input" placeholder="Add a note..." value="${w.note||''}" oninput="updateNote(${w.id},this.value)"/>
+        <div class="wl-date">Added ${w.addedAt}</div>
+      </div>
+      <div class="wl-actions">
+        <button class="btn-wl-analyze" onclick="analyzeFromWatchlist('${w.symbol}')">⚡ ANALYZE</button>
+        <button class="btn-wl-del" onclick="removeFromWatchlist(${w.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+renderChecklist();
+renderJournal();
+renderWatchlist();
+</script>
+</body>
+</html>
