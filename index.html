@@ -3,243 +3,77 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WPS.AI | Institutional Stock Scorer</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>WPS.AI | Institutional Scorer & Backtester</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --ink:#111827;
-  --ink2:#374151;
-  --ink3:#6b7280;
-  --border:#e5e7eb;
-  --shadow:0 10px 30px rgba(17,24,39,.08);
-  --gold:#b45309;
-  --gold2:#d97706;
-  --danger:#b91c1c;
-  --ok:#166534;
-  --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  --sans:'Syne', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --bg:#f6f7fb; --card:#ffffff; --ink:#111827; --ink2:#374151; --ink3:#6b7280;
+  --border:#e5e7eb; --gold:#b45309; --gold2:#d97706; --danger:#b91c1c;
+  --mono:'IBM Plex Mono', monospace; --sans:'Syne', sans-serif;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font-family:var(--mono);
-}
-a{color:inherit}
-.nav{
-  position:sticky; top:0; z-index:20;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 18px;
-  background:rgba(255,255,255,.9);
-  backdrop-filter:saturate(150%) blur(10px);
-  border-bottom:1px solid var(--border);
-}
-.nav-brand{
-  font-family:var(--sans);
-  font-weight:800;
-  letter-spacing:.2px;
-  font-size:18px;
-}
-.nav-brand span{color:var(--gold)}
-.nav-tabs{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
-.nav-tab{
-  font-family:var(--mono);
-  font-size:11px;
-  font-weight:700;
-  padding:8px 10px;
-  border:1px solid var(--border);
-  background:#fff;
-  border-radius:10px;
-  cursor:pointer;
-  color:var(--ink2);
-}
-.nav-tab.active{
-  border-color:rgba(180,83,9,.35);
-  color:var(--ink);
-  box-shadow:0 8px 18px rgba(180,83,9,.12);
-}
-.main{max-width:1100px; margin:0 auto; padding:22px 18px 60px}
-.page{display:none}
-.page.active{display:block}
-h1,h2,h3{font-family:var(--sans); margin:0}
-.subhead{margin-top:6px; color:var(--ink3); font-size:12px}
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:18px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:14px;
-}
-.stack{display:flex; flex-direction:column; gap:14px}
-.row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
-.label{font-size:10px; font-weight:700; letter-spacing:.8px; color:var(--ink3)}
-.input{
-  flex:1;
-  min-width:240px;
-  padding:10px 12px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  outline:none;
-  font-family:var(--mono);
-  font-size:12px;
-  background:#fff;
-}
-.input:focus{border-color:rgba(180,83,9,.45); box-shadow:0 0 0 3px rgba(217,119,6,.12)}
-.btn{
-  padding:10px 14px;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(90deg, var(--gold), var(--gold2));
-  color:#fff;
-  font-family:var(--mono);
-  font-weight:800;
-  cursor:pointer;
-  font-size:12px;
-}
-.btn:disabled{opacity:.55; cursor:not-allowed}
-.note{
-  font-size:11px;
-  color:var(--ink3);
-  line-height:1.35;
-}
-.note b{color:var(--ink2)}
-.badge{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 10px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:#fff;
-  font-size:11px;
-  color:var(--ink2);
-}
-.badge .dot{width:8px; height:8px; border-radius:99px; background:var(--gold)}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(12, 1fr);
-  gap:12px;
-}
-.col-12{grid-column:span 12}
-.col-8{grid-column:span 8}
-.col-7{grid-column:span 7}
-.col-6{grid-column:span 6}
-.col-5{grid-column:span 5}
-.col-4{grid-column:span 4}
-@media (max-width:900px){
-  .col-8,.col-7,.col-6,.col-5,.col-4{grid-column:span 12}
-}
-.hr{height:1px; background:var(--border); margin:10px 0}
-.kpi{
-  display:flex; flex-direction:column; gap:8px;
-  border:1px solid var(--border);
-  background:#fff;
-  border-radius:18px;
-  padding:14px;
-}
-.kpi-title{font-size:10px; font-weight:800; letter-spacing:.8px; color:var(--ink3)}
-.kpi-score{font-family:var(--sans); font-size:44px; font-weight:800; color:var(--gold); line-height:1}
-.kpi-verdict{font-size:14px; font-weight:800; color:var(--ink)}
-.summary{
-  border:1px solid rgba(180,83,9,.25);
-  background:rgba(217,119,6,.06);
-  border-radius:18px;
-  padding:14px;
-  color:#1f2937;
-  line-height:1.45;
-}
-.pillar{
-  border:1px solid var(--border);
-  background:#fff;
-  border-radius:16px;
-  padding:12px;
-  min-height:110px;
-}
-.pillar-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:8px}
-.pillar-name{font-size:12px; font-weight:900; color:var(--ink)}
-.pillar-score{font-size:12px; font-weight:900; color:var(--gold)}
-.pillar-body{font-size:11px; color:var(--ink3); line-height:1.35}
-.list{
-  display:flex; flex-direction:column; gap:8px;
-}
-.source{
-  display:flex; gap:10px; align-items:center;
-  padding:10px 12px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:#fff;
-  text-decoration:none;
-  font-size:11px;
-  color:var(--ink2);
-}
-.loading{
-  display:none;
-  text-align:center;
-  padding:34px 10px;
-  font-weight:900;
-  color:var(--gold);
-}
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--mono); font-size:13px; }
+.nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:rgba(255,255,255,.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+.nav-brand{ font-family:var(--sans); font-weight:800; font-size:20px; }
+.nav-brand span{ color:var(--gold); }
+.nav-tab{ padding:8px 12px; border:1px solid var(--border); background:#fff; border-radius:8px; cursor:pointer; font-weight:700; font-size:11px; margin-left:5px; }
+.nav-tab.active{ border-color:var(--gold); color:var(--gold); box-shadow:0 4px 12px rgba(180,83,9,0.1); }
+.main{ max-width:1100px; margin:0 auto; padding:20px; }
+.page{ display:none; } .page.active{ display:block; }
+.card{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:16px; box-shadow:0 4px 20px rgba(0,0,0,0.03); }
+.grid{ display:grid; grid-template-columns:repeat(12, 1fr); gap:15px; }
+.col-12{ grid-column:span 12; } .col-8{ grid-column:span 8; } .col-4{ grid-column:span 4; }
+.label{ font-size:10px; font-weight:700; color:var(--ink3); letter-spacing:1px; margin-bottom:5px; text-transform:uppercase; }
+.input{ width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-family:var(--mono); margin-bottom:10px; }
+.btn{ padding:10px 20px; border:none; border-radius:8px; background:linear-gradient(90deg, var(--gold), var(--gold2)); color:#fff; font-weight:800; cursor:pointer; width:100%; }
+.kpi-score{ font-family:var(--sans); font-size:48px; color:var(--gold); line-height:1; }
+.pillar{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px; }
+.pillar-head{ display:flex; justify-content:space-between; font-weight:800; margin-bottom:8px; }
+.hr{ height:1px; background:var(--border); margin:15px 0; }
+.loading{ display:none; text-align:center; padding:40px; font-weight:800; color:var(--gold); }
+.backtest-badge{ background:rgba(217,119,6,0.1); color:var(--gold); padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800; }
 </style>
 </head>
-
 <body>
+
 <nav class="nav">
   <div class="nav-brand">WPS<span>.</span>AI</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('scorer', this)">SCORER</button>
-    <button class="nav-tab" onclick="showPage('checklist', this)">EXIT PROTOCOL</button>
+    <button class="nav-tab active" onclick="showPage('scorer', this)">AUDIT</button>
+    <button class="nav-tab" onclick="showPage('journal', this)">JOURNAL</button>
   </div>
 </nav>
 
 <div class="main">
   <div class="page active" id="page-scorer">
-    <div style="margin-bottom:18px;">
-      <h1 style="font-size:32px;">Institutional Stock Scorer</h1>
-      <div class="subhead">Strategy: 6-Pillar Weighted Probability Score (WPS).</div>
-    </div>
-
-    <div class="card stack">
+    <div class="card">
       <div class="grid">
-        <div class="col-12">
-          <div class="row" style="margin-bottom:8px;"><div class="label">API KEY</div></div>
-          <input type="password" class="input" id="geminiKey" placeholder="Gemini API Key..." />
+        <div class="col-8">
+          <div class="label">NSE Symbol</div>
+          <input class="input" id="stockInput" placeholder="e.g. JINDALSAW" />
+          <div class="label">Gemini API Key</div>
+          <input type="password" class="input" id="geminiKey" placeholder="AIza..." />
         </div>
-        <div class="col-12">
-          <div class="row" style="margin-bottom:8px;"><div class="label">NSE SYMBOL</div></div>
-          <div class="row">
-            <input class="input" id="stockInput" placeholder="e.g. LAURUSLABS" />
-            <button class="btn" id="analyzeBtn">RUN 6-PILLAR AUDIT</button>
-          </div>
+        <div class="col-4" style="display:flex; align-items:flex-end;">
+          <button class="btn" id="analyzeBtn">RUN 6-PILLAR AUDIT & BACKTEST</button>
         </div>
       </div>
     </div>
 
-    <div id="loading" class="loading">AUDITING DATA INTEGRITY & MARKET PILLARS...</div>
-    <div id="resultsPanel" class="stack" style="margin-top:14px;"></div>
+    <div id="loading" class="loading">VERIFYING DATA INTEGRITY...</div>
+    <div id="resultsPanel"></div>
   </div>
 
-  <div class="page" id="page-checklist">
+  <div class="page" id="page-journal">
     <div class="card">
-      <h2 style="color:var(--danger)">III. Execution & Exit Protocol</h2>
-      <div class="subhead">Rules to protect capital once trade is active.</div>
-      <div class="hr"></div>
-      <div class="list" style="margin-top:10px;">
-        <div class="pillar-body"><b>1. Target 1 (T1):</b> Sell 50%. Move SL to Entry Price.</div>
-        <div class="pillar-body"><b>2. Target 2 (T2):</b> Sell 25% - 40%.</div>
-        <div class="pillar-body"><b>3. The "Runner":</b> Leave 10%-25% until 45° P&F trendline is broken.</div>
-        <div class="hr"></div>
-        <div class="pillar-name" style="color:var(--danger)">PANIC EXIT (Immediate)</div>
-        <div class="pillar-body">• Close below 20-day EMA or P&F Trendline.</div>
-        <div class="pillar-body">• Fundamental "Why" changes (e.g., USFDA rejection).</div>
-      </div>
+      <h2>Trade Journal</h2>
+      <div id="journalEntries">No entries yet. Run an audit to save a trade.</div>
     </div>
   </div>
 </div>
 
 <script>
-const $ = (sel) => document.querySelector(sel);
+const $ = (s) => document.querySelector(s);
+let currentAnalysis = null;
 
 function showPage(id, btn){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -249,62 +83,52 @@ function showPage(id, btn){
 }
 
 async function analyzeStock(){
-  const symbol = $('#stockInput').value.trim().toUpperCase();
-  const apiKey = $('#geminiKey').value.trim();
-  if(!symbol || !apiKey) return alert("Missing symbol or API Key");
+  const sym = $('#stockInput').value.trim().toUpperCase();
+  const key = $('#geminiKey').value.trim();
+  if(!sym || !key) return alert("Enter Symbol & Key");
 
   $('#loading').style.display = 'block';
   $('#resultsPanel').innerHTML = '';
 
+  const systemInstructions = `
+    You are a strictly factual financial auditor. 
+    RESPONSE RULE: Output ONLY valid JSON. No conversational text, no markdown.
+    STRATEGY: 6-Pillar Methodology (RS 15%, Technical 25%, Sector 10%, Fundamental 20%, Insiders 15%, R:R 15%).
+    BACKTEST RULE: Look at historical data from the last 12 months. Count successful entries based on the 45-degree P&F rule.
+  `;
+
   const prompt = `
-Task: Analyze NSE stock "${symbol}" using the Institutional 6-Pillar Methodology.
-Rules:
-1. Relative Strength (15%): Compare against Nifty 50. Check if it remains flat on -1% market days.
-2. Technical Validation (25%): Above 45-degree P&F trendline? Vertical Count Targets?
-3. Sector Rotation (10%): Belong to leading sector? Any Budget/GST catalysts?
-4. Fundamentals (20%): YoY Profit >25%? Debt/Equity <0.5?
-5. Institutional/Insiders (15%): Bulk/Block deals? FII/DII stake trend?
-6. Risk/Reward (15%): R:R must be 2:1. Define T1 and Stop Loss.
-
-Data Integrity: Verify latest price/news timestamp. Source only NSE, BSE, or official filings.
-
-Return JSON:
-{
-  "symbol": "${symbol}",
-  "company": "string",
-  "cmp": number,
-  "wps": number,
-  "verdict": "string",
-  "summary": "string",
-  "pillars": [
-    {"name":"Relative Strength","score":0-100,"summary":"string"},
-    {"name":"Technical Validation","score":0-100,"summary":"string"},
-    {"name":"Sector Rotation","score":0-100,"summary":"string"},
-    {"name":"Fundamental Deep Dive","score":0-100,"summary":"string"},
-    {"name":"Institutional Moves","score":0-100,"summary":"string"},
-    {"name":"Risk/Reward","score":0-100,"summary":"string"}
-  ],
-  "exit_strategy": {"t1": number, "sl": number}
-}
-`;
+    Audit NSE:${sym}. 
+    1. Relative Strength: vs Nifty 50[cite: 5, 6].
+    2. Technical: 45-deg P&F trendline status[cite: 10, 12].
+    3. Fundamentals: YoY Profit > 25%, Debt/Equity < 0.5[cite: 19, 21].
+    4. Backtest: % Win rate of this strategy on this stock over 12 months[cite: 31].
+    
+    JSON Schema:
+    {
+      "symbol": "${sym}", "company": "Name", "cmp": 0, "wps": 0, "verdict": "Action",
+      "backtest": {"win_rate": 0, "trades": 0, "avg_return": 0},
+      "pillars": [{"name": "string", "score": 0, "summary": "string"}],
+      "targets": {"t1": 0, "sl": 0}
+    }
+  `;
 
   try {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        tools: [{ google_search: {} }]
+        contents: [{ parts: [{ text: systemInstructions + prompt }] }],
+        generationConfig: { temperature: 0.1, responseMimeType: "application/json" }
       })
     });
-    
-    const data = await resp.json();
-    const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "");
-    const d = JSON.parse(text);
 
-    render(d);
-  } catch(e) {
-    $('#resultsPanel').innerHTML = `<div class="card" style="color:red">Audit Failed: ${e.message}</div>`;
+    const data = await resp.json();
+    const rawJson = data.candidates[0].content.parts[0].text;
+    currentAnalysis = JSON.parse(rawJson);
+    render(currentAnalysis);
+  } catch (e) {
+    $('#resultsPanel').innerHTML = `<div class="card" style="color:var(--danger)"><b>Audit Failed:</b> ${e.message}</div>`;
   } finally {
     $('#loading').style.display = 'none';
   }
@@ -312,12 +136,9 @@ Return JSON:
 
 function render(d){
   const pillarsHtml = d.pillars.map(p => `
-    <div class="pillar col-4">
-      <div class="pillar-head">
-        <div class="pillar-name">${p.name}</div>
-        <div class="pillar-score">${p.score}%</div>
-      </div>
-      <div class="pillar-body">${p.summary}</div>
+    <div class="pillar">
+      <div class="pillar-head"><span>${p.name}</span><span>${p.score}%</span></div>
+      <div style="color:var(--ink3); font-size:11px;">${p.summary}</div>
     </div>
   `).join('');
 
@@ -325,31 +146,36 @@ function render(d){
     <div class="grid">
       <div class="col-8">
         <div class="card">
-          <h1 style="color:var(--gold)">${d.symbol}</h1>
-          <div class="subhead">${d.company} | CMP: ₹${d.cmp}</div>
+          <h1 style="margin:0; font-family:var(--sans);">${d.symbol} <span class="backtest-badge">BACKTEST: ${d.backtest.win_rate}% Win Rate</span></h1>
+          <div class="label">${d.company} | CMP: ₹${d.cmp}</div>
           <div class="hr"></div>
-          <div class="summary">${d.summary}</div>
+          <p>${d.verdict}: Based on ${d.backtest.trades} historical signals[cite: 2, 4].</p>
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="pillar"><b>Target 1:</b> ₹${d.targets.t1}</div>
+            <div class="pillar" style="color:var(--danger)"><b>Stop Loss:</b> ₹${d.targets.sl}</div>
+          </div>
         </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap:15px;">${pillarsHtml}</div>
       </div>
       <div class="col-4">
-        <div class="kpi">
-          <div class="kpi-title">FINAL WPS SCORE</div>
+        <div class="card" style="text-align:center;">
+          <div class="label">Final WPS Score</div>
           <div class="kpi-score">${d.wps}%</div>
-          <div class="kpi-verdict">${d.verdict}</div>
-        </div>
-      </div>
-      ${pillarsHtml}
-      <div class="col-12">
-        <div class="card" style="border-left:4px solid var(--danger)">
-          <div class="label">EXIT TARGETS (WPS CALCULATED)</div>
-          <div class="row" style="margin-top:10px; gap:40px;">
-            <div><div class="small">Target 1 (T1)</div><div class="pillar-name">₹${d.exit_strategy?.t1 || '—'}</div></div>
-            <div><div class="small">Hard Stop Loss</div><div class="pillar-name" style="color:var(--danger)">₹${d.exit_strategy?.sl || '—'}</div></div>
-          </div>
+          <div class="hr"></div>
+          <button class="btn" onclick="saveToJournal()">SAVE TO JOURNAL</button>
         </div>
       </div>
     </div>
   `;
+}
+
+function saveToJournal(){
+  if(!currentAnalysis) return;
+  const entry = `<div class="pillar" style="margin-bottom:10px;"><b>${currentAnalysis.symbol}</b> - Score: ${currentAnalysis.wps}% | Date: ${new Date().toLocaleDateString()}</div>`;
+  const container = $('#journalEntries');
+  if(container.innerHTML.includes("No entries")) container.innerHTML = "";
+  container.innerHTML += entry;
+  alert("Trade Saved to Journal.");
 }
 
 $('#analyzeBtn').addEventListener('click', analyzeStock);
