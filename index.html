@@ -3,232 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WPS AI | Real-Time Stock Scorer</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>WPS AI | Grounded Trading Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Syne:wght@800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #060810;
-  --surface: #0d1117;
-  --surface2: #141922;
-  --surface3: #1c2433;
-  --border: #1e2d40;
-  --border2: #263650;
-  --text: #e2eaf5;
-  --text2: #6b83a0;
-  --text3: #3a4f68;
-  --gold: #e8b84b;
-  --gold-dim: rgba(232,184,75,0.12);
-  --green: #34d48a;
-  --green-dim: rgba(52,212,138,0.1);
-  --red: #f04a4a;
-  --red-dim: rgba(240,74,74,0.1);
-  --amber: #f5a623;
-  --amber-dim: rgba(245,166,35,0.1);
-  --blue: #4a9eff;
-  --blue-dim: rgba(74,158,255,0.1);
-  --nav-h: 64px;
+  --bg: #060810; --surface: #0d1117; --surface2: #141922; --border: #1e2d40;
+  --text: #e2eaf5; --text2: #6b83a0; --gold: #e8b84b; --green: #34d48a; --red: #f04a4a;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-
-/* BG */
-.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(232,184,75,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,184,75,0.03) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 25s linear infinite;pointer-events:none;z-index:0;}
-@keyframes gridMove{0%{transform:translateY(0);}100%{transform:translateY(60px);}}
-.bg-glow{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(232,184,75,0.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
-
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(6,8,16,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;padding:0 20px;gap:0;}
-.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);margin-right:32px;white-space:nowrap;}
-.nav-brand span{color:var(--gold);}
-
-/* MAIN */
-.main{padding-top:calc(var(--nav-h) + 32px);padding-bottom:80px;max-width:860px;margin:0 auto;padding-left:20px;padding-right:20px;position:relative;z-index:1;}
-
-/* API KEY BANNER */
-.apikey-banner{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.apikey-banner-label{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
-.apikey-banner-input{flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);outline:none;transition:border-color 0.2s;}
-.apikey-banner-input:focus{border-color:var(--gold);}
-
-/* SEARCH */
-.search-box{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom: 24px;}
-.search-input{flex:1;background:transparent;border:none;outline:none;padding:18px 20px;font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text);letter-spacing:2px;text-transform:uppercase;}
-.search-btn{padding:18px 24px;background:var(--gold);border:none;color:#000;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;}
-
-/* RESULTS */
-.results{display:none;animation:fadeUp 0.4s ease both;}
-.results.active{display:block;}
-.stock-header{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:22px 24px;margin-bottom:14px;}
-.sym-big{font-size:26px;font-weight:700;color:var(--gold);letter-spacing:2px;}
-.verdict-banner{padding: 20px; border-radius: 12px; margin-bottom: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.1);}
-
-/* PILLARS */
-.pillars-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:12px;margin-bottom:20px;}
-.pcardi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
-.pval{font-size:22px;font-weight:700;margin-bottom: 5px;}
-.preason{font-size:11px;color:var(--text2);line-height:1.6;}
-
-/* LOADING */
-.loading-panel{display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:36px;text-align:center;}
-.loading-panel.active{display:block;}
-.loader-msg{font-size:14px;color:var(--gold);letter-spacing:1px;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-
-/* CITATIONS */
-.grounding-box{background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px;}
-.grounding-title{font-size: 10px; color: var(--gold); letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;}
-.source-link{display: block; font-size: 11px; color: var(--blue); margin-bottom: 6px; text-decoration: none;}
-.source-link:hover{text-decoration: underline;}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 20px; }
+.container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+.header { margin-bottom: 30px; }
+.title { font-family: 'Syne', sans-serif; font-size: 32px; color: var(--gold); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+.search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+.input-field { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: #white; outline: none; }
+.btn { padding: 14px 24px; background: var(--gold); border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.loading { display: none; text-align: center; color: var(--gold); margin: 20px 0; }
+/* Grounding Styles */
+.sources-box { background: var(--surface2); padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid var(--border); }
+.source-tag { display: inline-block; font-size: 10px; color: #4a9eff; margin-right: 10px; text-decoration: none; }
+.suggestion-box { margin-top: 15px; padding: 10px; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
 
-<div class="bg-grid"></div>
-<div class="bg-glow"></div>
-
-<nav class="nav">
-  <div class="nav-brand">WPS<span>.</span>AI</div>
-</nav>
-
-<div class="main">
-  <div class="page-header">
-    <div class="page-eyebrow">Real-Time institutional Engine</div>
-    <div class="page-title">AI <em>Stock</em> Scorer</div>
-    <div class="page-sub">// SEARCH GROUNDING ENABLED: ANALYSING LIVE 2026 DATA</div>
+<div class="container">
+  <div class="header">
+    <h1 class="title">WPS.AI Scorer</h1>
+    <p style="color:var(--text2)">Grounded in Live February 2026 Market Data</p>
   </div>
 
-  <div class="apikey-banner">
-    <div class="apikey-banner-label">🔑 Gemini API Key</div>
-    <input class="apikey-banner-input" id="apiKey" type="password" placeholder="AIza..."/>
-    <label style="font-size: 11px; color: var(--text3); cursor: pointer;">
-      <input type="checkbox" id="rememberKey" onchange="saveKey()"> Remember
-    </label>
+  <div class="card">
+    <div style="margin-bottom:15px;">
+      <input type="password" id="apiKey" class="input-field" placeholder="Enter Gemini API Key">
+    </div>
+    <div class="search-box">
+      <input type="text" id="symbol" class="input-field" placeholder="e.g. LAURUSLABS">
+      <button class="btn" onclick="analyze()">ANALYZE LIVE</button>
+    </div>
   </div>
 
-  <div class="search-box">
-    <input class="search-input" id="stockInput" placeholder="Enter Symbol (e.g. RELIANCE)"/>
-    <button class="search-btn" id="analyzeBtn" onclick="runAnalysis()">ANALYZE →</button>
-  </div>
-
-  <div class="loading-panel" id="loadingPanel">
-    <div class="loader-msg">ACCESSING LIVE WEB DATA & FINANCIAL REPORTS...</div>
-  </div>
-
-  <div id="resultsArea" class="results"></div>
+  <div id="loader" class="loading">SEARCHING LIVE WEB & ANALYZING...</div>
+  <div id="results"></div>
 </div>
 
 <script>
-const PROMPT_TEMPLATE = `You are a professional stock analyst. Use GOOGLE SEARCH to find the most recent information (Feb 2026) for the stock symbol provided. 
-
-Analyze these 7 Pillars:
-1. Relative Strength (Latest 10-day trend)
-2. Technicals (Recent breakouts/volumes)
-3. Sector Rotation (Current leaders in 2026)
-4. Fundamentals (Last quarterly results)
-5. Institutional Flow (Recent FII/DII bulk deals)
-6. Risk/Reward
-7. Liquidity
-
-Return ONLY a JSON object:
+const SYSTEM_PROMPT = `Analyze this stock using the 7-Pillar WPS Methodology. 
+You MUST use Google Search to find current stock prices, recent news, and FII activity from February 2026.
+Return ONLY JSON:
 {
-  "symbol": "SYMBOL",
-  "name": "Full Company Name",
-  "cmp": "Current Market Price",
-  "wps": 0-100,
-  "verdict": "ACTIONABLE VERDICT",
-  "color": "hex_code",
-  "pillars": [
-    {"name": "Pillar Name", "score": 0-100, "reason": "Explanation with 2026 data facts"}
-  ],
-  "sources": [{"title": "Source Title", "url": "URL"}]
+  "symbol": "SYM", "price": "₹XXX", "wps": 0-100, "verdict": "Text",
+  "pillars": [{"name":"P1", "score":80, "reason":"..."}]
 }`;
 
-async function runAnalysis() {
-  const sym = document.getElementById('stockInput').value.trim().toUpperCase();
-  const key = document.getElementById('apiKey').value.trim();
-  if(!sym || !key) return alert("Please enter Symbol and API Key");
+async function analyze() {
+  const sym = document.getElementById('symbol').value.toUpperCase();
+  const key = document.getElementById('apiKey').value;
+  const loader = document.getElementById('loader');
+  const results = document.getElementById('results');
 
-  const loader = document.getElementById('loadingPanel');
-  const results = document.getElementById('resultsArea');
-  
-  loader.classList.add('active');
-  results.classList.remove('active');
+  if(!sym || !key) return alert("Missing details");
+  loader.style.display = 'block';
+  results.innerHTML = '';
 
   try {
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: PROMPT_TEMPLATE + "\n\nAnalyze: " + sym }] }],
-        tools: [{ google_search: {} }], // Enable Search Grounding
-        generationConfig: { temperature: 1.0 } // Better for synthesis
+        contents: [{ parts: [{ text: SYSTEM_PROMPT + "\n\nStock: " + sym }] }],
+        tools: [{ google_search: {} }], // Enable real-time grounding
+        generationConfig: { temperature: 1.0 } // Recommended for grounding
       })
     });
 
-    const data = await resp.json();
-    const text = data.candidates[0].content.parts[0].text;
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    const result = JSON.parse(jsonMatch[0]);
+    const data = await response.json();
+    const candidate = data.candidates[0];
+    const rawContent = candidate.content.parts[0].text;
+    const jsonStr = rawContent.match(/\{[\s\S]*\}/)[0];
+    const result = JSON.parse(jsonStr);
 
-    displayResults(result);
-  } catch (err) {
-    alert("Analysis Failed. Check console or API key.");
-    console.error(err);
-  } finally {
-    loader.classList.remove('active');
-  }
-}
-
-function displayResults(d) {
-  const area = document.getElementById('resultsArea');
-  area.innerHTML = `
-    <div class="stock-header">
-      <div class="sym-big">${d.symbol}</div>
-      <div style="font-size:14px; color:var(--text2)">${d.name} | CMP: ${d.cmp}</div>
-    </div>
-
-    <div class="verdict-banner" style="background: ${d.color}22; border-color: ${d.color}">
-      <div style="font-size: 10px; letter-spacing: 2px; color: var(--text3)">WPS SCORE</div>
-      <div style="font-size: 42px; font-weight: 800; color: ${d.color}">${d.wps}</div>
-      <div style="font-size: 16px; font-weight: 700; color: ${d.color}">${d.verdict}</div>
-    </div>
-
-    <div class="pillars-grid">
-      ${d.pillars.map(p => `
-        <div class="pcardi">
-          <div class="pval" style="color: ${d.color}">${p.score}%</div>
-          <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px;">${p.name}</div>
-          <div class="preason">${p.reason}</div>
+    // Render Grounded Results
+    results.innerHTML = `
+      <div class="card">
+        <h2 style="color:var(--gold)">${result.symbol} | ${result.price}</h2>
+        <h3 style="margin: 10px 0">WPS Score: ${result.wps}%</h3>
+        <p>${result.verdict}</p>
+        <div class="sources-box">
+          <p style="font-size:10px; color:var(--gold); margin-bottom:8px">LIVE SOURCES USED:</p>
+          ${renderSources(candidate.groundingMetadata)}
         </div>
-      `).join('')}
-    </div>
-
-    <div class="grounding-box">
-      <div class="grounding-title">Grounded Sources (Live Data)</div>
-      ${(d.sources || []).map(s => `<a href="${s.url}" target="_blank" class="source-link">🔗 ${s.title}</a>`).join('')}
-    </div>
-  `;
-  area.classList.add('active');
-}
-
-function saveKey() {
-  if(document.getElementById('rememberKey').checked) {
-    localStorage.setItem('wps_key', document.getElementById('apiKey').value);
-  } else {
-    localStorage.removeItem('wps_key');
+        <div id="google-suggestions" class="suggestion-box">
+          ${candidate.groundingMetadata?.searchEntryPoint?.htmlContent || ''}
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    alert("Error: " + e.message);
+  } finally {
+    loader.style.display = 'none';
   }
 }
 
-window.onload = () => {
-  const saved = localStorage.getItem('wps_key');
-  if(saved) {
-    document.getElementById('apiKey').value = saved;
-    document.getElementById('rememberKey').checked = true;
-  }
-};
+function renderSources(meta) {
+  if (!meta || !meta.groundingChunks) return "No live sources found.";
+  return meta.groundingChunks.map((chunk, i) => 
+    `<a href="${chunk.web.uri}" target="_blank" class="source-tag">[${i+1}] ${chunk.web.title}</a>`
+  ).join('');
+}
 </script>
 </body>
 </html>
