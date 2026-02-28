@@ -55,6 +55,7 @@
     .signal-neutral { background: #fef3c7; color: var(--warning); }
     .error-box { background: #fee2e2; color: var(--danger); padding: 20px; border-radius: 12px; border: 1px solid var(--danger); }
     .real-data { background: var(--success-light); color: var(--success); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
+    .demo-warning { background: #fef3c7; color: var(--warning); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; }
     .trade-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 10px; padding: 10px; border-bottom: 1px solid var(--border); font-size: 12px; }
     .trade-header { font-weight: 700; color: var(--ink3); text-transform: uppercase; font-size: 10px; }
     .chart-container { position: relative; height: 300px; margin: 20px 0; }
@@ -569,6 +570,20 @@
         const { support, resistance } = indicators.levels;
         const risk = currentPrice - support;
         
+        // FIXED: Ensure target is ALWAYS above entry price
+        // Calculate minimum target (at least 10% above entry)
+        const minTarget = currentPrice * 1.10;
+        // Use resistance if it's above current price and minTarget, otherwise use minTarget
+        let targetPrice = resistance > currentPrice ? Math.max(resistance * 1.02, minTarget) : minTarget;
+        // Additional safety check: ensure target is at least 5% above entry
+        if (targetPrice <= currentPrice) {
+          targetPrice = currentPrice * 1.15;
+        }
+        
+        // Calculate risk/reward properly
+        const reward = targetPrice - currentPrice;
+        const riskRewardRatio = risk > 0 ? (reward / risk).toFixed(1) : 'N/A';
+        
         currentAnalysis = {
           symbol,
           company: quote.company,
@@ -580,9 +595,9 @@
           indicators,
           targets: {
             entry: currentPrice,
-            stopLoss: support * 0.98,
-            target: resistance * 0.95,
-            riskReward: risk > 0 ? ((resistance - currentPrice) / risk).toFixed(1) : 'N/A'
+            stopLoss: Math.min(support * 0.98, currentPrice * 0.95), // Stop loss below entry
+            target: targetPrice, // Now guaranteed to be above entry
+            riskReward: riskRewardRatio
           },
           history: history.slice(-30),
           source: quote.source,
